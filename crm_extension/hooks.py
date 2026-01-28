@@ -117,13 +117,13 @@ app_license = "mit"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
+permission_query_conditions = {
+	"Lead": "crm_extension.crm_extension.custom_permissions.get_permission_query_conditions",
+}
 #
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+has_permission = {
+	"Lead": "crm_extension.crm_extension.custom_permissions.get_permission_query_conditions",
+}
 
 # DocType Class
 # ---------------
