@@ -97,7 +97,7 @@ app_license = "mit"
 # Name of the app being installed is passed as an argument
 
 # before_app_install = "crm_extension.utils.before_app_install"
-# after_app_install = "crm_extension.utils.after_app_install"
+# after_app_install = "crm_extension.setup.after_app_install"
 
 # Integration Cleanup
 # -------------------
@@ -246,4 +246,9 @@ has_permission = {
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-
+fixtures = [
+    # export all records from the Category table
+    "Workflow",
+    # export only those records that match the filters from the Role table
+    {"dt": "Role", "filters": [["is_custom", "=", 1]]},
+]
