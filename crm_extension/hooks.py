@@ -118,11 +118,11 @@ app_license = "mit"
 # Permissions evaluated in scripted ways
 
 permission_query_conditions = {
-	"Lead": "crm_extension.crm_extension.custom_permissions.get_permission_query_conditions",
+	"Lead": "crm_extension.crm_extension.custom_permissions.lead_permission_query_conditions",
 }
 #
 has_permission = {
-	"Lead": "crm_extension.crm_extension.custom_permissions.get_permission_query_conditions",
+	"Lead": "crm_extension.crm_extension.custom_permissions.lead_has_permission",
 }
 
 # DocType Class
