@@ -166,5 +166,16 @@ def lead_has_permission(doc, ptype=None, user=None) -> bool:
 
 		# ❌ Not owner and not assigned
 		return False
+	if "Tele Caller" in roles:
+		# ✔️ Assigned check (JSON field)
+		assign_list = []
+		if doc.get("_assign"):
+			try:
+				assign_list = json.loads(doc.get("_assign"))
+			except Exception:
+				assign_list = []
 
+		if user in assign_list:
+			return True
+		
 	return True
