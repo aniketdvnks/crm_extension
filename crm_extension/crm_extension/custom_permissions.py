@@ -112,7 +112,9 @@ def lead_has_permission(doc, ptype=None, user=None) -> bool:
 	- Branch Manager → only allowed branches (branch must exist)
 	- Relationship Manager → allowed branches AND (owner OR assigned)
 	"""
-
+	if doc.is_new():
+		return
+	
 	user = user or frappe.session.user
 
 	if user == "Administrator":
