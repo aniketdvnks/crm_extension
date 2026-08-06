@@ -15,10 +15,15 @@ WEALTH_MANAGER_ROLES = {
 
 LEAD_ACCESS_ROLES = TELECALLER_ROLES | BRANCH_ACCESS_ROLES | WEALTH_MANAGER_ROLES
 
-# Roles that may still see every lead when they hold a Head Quarter branch
-# permission. Relationship Managers are deliberately excluded: two RMs must not
-# see each other's leads, even within the same branch.
+# Roles that may see every lead when they hold a Head Quarter branch permission.
 HEADQUARTER_BYPASS_ROLES = TELECALLER_ROLES | BRANCH_ACCESS_ROLES
+
+# Holding any of these disqualifies a user from the Head Quarter bypass, whatever
+# else they carry: two Relationship Managers must never see each other's leads,
+# even in the same branch. This is a subtraction rather than an omission from
+# HEADQUARTER_BYPASS_ROLES on purpose — every RM also holds Sales User, so
+# widening the bypass set would otherwise hand them blanket access again.
+HEADQUARTER_BYPASS_EXCLUDED_ROLES = WEALTH_MANAGER_ROLES
 
 # Keep these names in sync with the Branch records used for head office users.
 HEADQUARTER_BRANCHES = {
@@ -119,6 +124,9 @@ def _get_allowed_branches(user):
 
 
 def _has_headquarter_access(roles, allowed_branches):
+	if roles & HEADQUARTER_BYPASS_EXCLUDED_ROLES:
+		return False
+
 	return bool(roles & HEADQUARTER_BYPASS_ROLES) and any(
 		_is_headquarter_branch(branch) for branch in allowed_branches
 	)
