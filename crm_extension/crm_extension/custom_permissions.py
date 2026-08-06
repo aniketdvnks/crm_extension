@@ -5,7 +5,7 @@ import frappe
 
 SYSTEM_ROLES = {"System Manager"}
 
-TELECALLER_ROLES = {"Tele Caller", "Telecaller"}
+TELECALLER_ROLES = {"Tele Caller", "Telecaller","Sales User"}
 BRANCH_ACCESS_ROLES = {"Branch Manager", "Stake Holder", "Stakeholder"}
 WEALTH_MANAGER_ROLES = {
 	"Relationship Manager",
