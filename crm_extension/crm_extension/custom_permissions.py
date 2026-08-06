@@ -15,6 +15,11 @@ WEALTH_MANAGER_ROLES = {
 
 LEAD_ACCESS_ROLES = TELECALLER_ROLES | BRANCH_ACCESS_ROLES | WEALTH_MANAGER_ROLES
 
+# Roles that may still see every lead when they hold a Head Quarter branch
+# permission. Relationship Managers are deliberately excluded: two RMs must not
+# see each other's leads, even within the same branch.
+HEADQUARTER_BYPASS_ROLES = TELECALLER_ROLES | BRANCH_ACCESS_ROLES
+
 # Keep these names in sync with the Branch records used for head office users.
 HEADQUARTER_BRANCHES = {
 	"Head Quarter",
@@ -63,7 +68,7 @@ def lead_permission_query_conditions(user=None, doctype=None):
 		conditions.append(_own_unbranched_condition(user))
 
 	if roles & WEALTH_MANAGER_ROLES:
-		conditions.append(_wealth_manager_condition(user, allowed_branches))
+		conditions.append(_wealth_manager_condition(user))
 
 	conditions = [condition for condition in conditions if condition]
 	if not conditions:
@@ -114,7 +119,7 @@ def _get_allowed_branches(user):
 
 
 def _has_headquarter_access(roles, allowed_branches):
-	return bool(roles & LEAD_ACCESS_ROLES) and any(
+	return bool(roles & HEADQUARTER_BYPASS_ROLES) and any(
 		_is_headquarter_branch(branch) for branch in allowed_branches
 	)
 
@@ -152,21 +157,20 @@ def _own_unbranched_condition(user):
 	)
 
 
-def _wealth_manager_condition(user, allowed_branches):
-	branch_condition = _branch_condition(allowed_branches)
-	user_access = " OR ".join(
-		[
+def _wealth_manager_condition(user):
+	"""A Relationship Manager sees only leads they own, created, or are assigned.
+
+	Branch is deliberately not part of this: two RMs in the same branch must not
+	see each other's leads, and most leads carry no branch at all.
+	"""
+	return " OR ".join(
+		f"({condition})"
+		for condition in (
 			f"{LEAD}.`lead_owner` = {frappe.db.escape(user)}",
 			f"{LEAD}.`owner` = {frappe.db.escape(user)}",
 			_assigned_condition(user),
-		]
+		)
 	)
-
-	conditions = [_own_unbranched_condition(user)]
-	if branch_condition:
-		conditions.append(f"{branch_condition} AND ({user_access})")
-
-	return " OR ".join(f"({condition})" for condition in conditions)
 
 
 def _can_create_doc(doc, user, roles, allowed_branches):
@@ -193,11 +197,7 @@ def _can_access_existing_doc(doc, user, roles, allowed_branches):
 			return True
 
 	if roles & WEALTH_MANAGER_ROLES:
-		if not branch and doc.get("owner") == user:
-			return True
-		if branch in allowed_branches and (
-			_is_user_owned_doc(doc, user) or _is_user_assigned_doc(doc, user)
-		):
+		if _is_user_owned_doc(doc, user) or _is_user_assigned_doc(doc, user):
 			return True
 
 	return False
